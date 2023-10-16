@@ -35,7 +35,7 @@ class AddBookmarkForm(forms.ModelForm):
         return data
 
     def save(self, commit=True):
-        self.instance.user = self.request.user
+        self.instance.user = self.request.user.id
         return super(AddBookmarkForm, self).save(commit)
 
 
@@ -52,7 +52,7 @@ class RemoveBookmarkForm(forms.ModelForm):
         data = super(RemoveBookmarkForm, self).clean()
         if not user_is_authenticated(self.request.user) or not self.request.user.is_staff:
             raise ValidationError('error')
-        if self.instance.user != self.request.user:
+        if self.instance.user != self.request.user.id:
             raise ValidationError('error')
         return data
 
@@ -81,14 +81,14 @@ class ToggleApplicationPinForm(forms.ModelForm):
             try:
                 pinned_app = PinnedApplication.objects.get(
                     app_label=self.cleaned_data['app_label'],
-                    user=self.request.user
+                    user=self.request.user.id
                 )
                 pinned_app.delete()
                 return False
             except PinnedApplication.DoesNotExist:
                 PinnedApplication.objects.create(
                     app_label=self.cleaned_data['app_label'],
-                    user=self.request.user
+                    user=self.request.user.id
                 )
                 return True
 
